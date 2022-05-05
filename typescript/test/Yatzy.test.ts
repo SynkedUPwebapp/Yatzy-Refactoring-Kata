@@ -115,5 +115,6 @@ describe('Full house', () => {
   it('scores the sum of the full house', () => {
     assert.strictEqual(18, new Yatzy(6, 2, 2, 2, 6).fullHouse());
     assert.strictEqual(0, new Yatzy(2, 3, 4, 5, 6).fullHouse());
+    assert.strictEqual(0, new Yatzy(2, 2, 4, 4, 6).fullHouse());
   });
 });

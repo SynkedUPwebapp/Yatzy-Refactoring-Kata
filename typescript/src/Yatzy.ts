@@ -1,40 +1,24 @@
 export default class Yatzy {
   private dice: number[];
 
-  constructor(d1: number, d2: number, d3: number, d4: number, _5: number) {
-    this.dice = [];
-    this.dice[0] = d1;
-    this.dice[1] = d2;
-    this.dice[2] = d3;
-    this.dice[3] = d4;
-    this.dice[4] = _5;
+  constructor(d1: number, d2: number, d3: number, d4: number, d5: number) {
+    this.dice = [d1, d2, d3, d4, d5]
   }
 
   public chance(): number {
-    var total = 0;
-    total += this.dice[0];
-    total += this.dice[1];
-    total += this.dice[2];
-    total += this.dice[3];
-    total += this.dice[4];
-    return total;
+    return this.dice.reduce((prev, current) => 
+      prev + current
+    , 0)
   }
 
   public yatzy(): number {
-    const tallies = this.tally()
-    for (let i = 0; i < 6; i++) if (tallies[i] >= 5) return 50;
-    return 0;
+    return this.tally().some(x => x >= 5) ? 50 : 0
   }
 
   private sum(number:number): number {
-    let sum = 0;
-    if (this.dice[0] == number) sum += number;
-    if (this.dice[1] == number) sum += number;
-    if (this.dice[2] == number) sum += number;
-    if (this.dice[3] == number) sum += number;
-    if (this.dice[4] == number) sum += number;
-
-    return sum;
+    return this.dice.reduce((prev, current) => 
+      current == number ? prev + number : prev
+    , 0)
   }
 
   public ones(): number {
@@ -93,9 +77,13 @@ export default class Yatzy {
   }
 
   private ofAKind(n:number) : number {
-    const tallies = this.tally()
-    for (let i = 0; i < 6; i++) if (tallies[i] >= n) return (i + 1) * n;
-    return 0
+    let score = 0
+    this.tally().forEach((tally, index) => {
+      if (tally >= n)
+        score = (index+1) * n
+    })
+    
+    return score
   }
 
   public four_of_a_kind(): number {
@@ -107,51 +95,35 @@ export default class Yatzy {
   }
 
   private straight(startingIndex:number, points: number) : number {
-    const tallies = this.tally()
-    let isStraight = true
-    for(let i=startingIndex; i<tallies.length-1+startingIndex; i++) {
-      if(tallies[i]!==1)
-        isStraight = false
-    }
-
+    let isStraight = this.tally()
+      .slice(startingIndex, 5)
+      .every(x => x === 1)
     return isStraight ? points : 0
   }
 
   public smallStraight(): number {
-    // const tallies = this.tally()
-    // if (tallies[0] == 1 && tallies[1] == 1 && tallies[2] == 1 && tallies[3] == 1 && tallies[4] == 1) return 15;
-    // return 0;
     return this.straight(0, 15)
   }
 
   public largeStraight(): number {
-    const tallies = this.tally()
-    if (tallies[1] == 1 && tallies[2] == 1 && tallies[3] == 1 && tallies[4] == 1 && tallies[5] == 1) return 20;
-    return 0;
+    return this.straight(1, 20)
   }
 
   public fullHouse(): number {
-    var _2 = false;
-    var i;
-    var _2_at = 0;
-    var _3 = false;
-    var _3_at = 0;
-
-    const tallies = this.tally()
-
-    for (i = 0; i != 6; i += 1)
-      if (tallies[i] == 2) {
-        _2 = true;
-        _2_at = i + 1;
+    let double = false
+    let triple = false
+    let total = 0
+    
+    this.tally().forEach((tally, index) => {
+      if (tally == 2) {
+        double = true
+        total += (index + 1) * 2
+      } else if (tally == 3) {
+        triple = true
+        total += (index + 1) * 3
       }
+    })
 
-    for (i = 0; i != 6; i += 1)
-      if (tallies[i] == 3) {
-        _3 = true;
-        _3_at = i + 1;
-      }
-
-    if (_2 && _3) return _2_at * 2 + _3_at * 3;
-    else return 0;
+    return double && triple ? total : 0
   }
 }
